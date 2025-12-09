@@ -7,6 +7,7 @@ from ui.menu import MainMenu
 
 def main():
     pygame.init()
+    pygame.mixer.init()  # Инициализация звуковой системы
 
     WINDOW_WIDTH = 800
     WINDOW_HEIGHT = 800
@@ -41,6 +42,7 @@ def main():
     valid_moves = []
     game_over = False
     winner = None
+    victory_sound_played = False  # Флаг, чтобы звук победы воспроизводился только один раз
 
     while True:
         for event in pygame.event.get():
@@ -57,6 +59,7 @@ def main():
                     winner = None
                     selected_square = None
                     valid_moves = []
+                    victory_sound_played = False  # Сбрасываем флаг звука
                 elif action == "QUIT":
                     pygame.quit()
                     sys.exit()
@@ -76,6 +79,7 @@ def main():
                                 if game.game_over:
                                     game_over = True
                                     winner = game.winner
+                                    victory_sound_played = False  # Сбрасываем флаг при новой победе
                             else:
                                 piece = game.board.get_piece(row, col)
                                 if piece and piece.color == game.current_player:
@@ -93,12 +97,14 @@ def main():
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         current_state = "MENU"
+                        victory_sound_played = False  # Сбрасываем флаг звука
                     elif event.key == pygame.K_z and pygame.key.get_mods() & pygame.KMOD_CTRL:
                         game.undo_move()
                         game_over = False
                         winner = None
                         valid_moves = []
                         selected_square = None
+                        victory_sound_played = False  # Сбрасываем флаг звука
 
             elif current_state == "GAME" and game_over:
                 if event.type == pygame.MOUSEBUTTONDOWN:
@@ -111,17 +117,21 @@ def main():
                         winner = None
                         selected_square = None
                         valid_moves = []
+                        victory_sound_played = False  # Сбрасываем флаг звука
                     elif menu_rect.collidepoint(pos):
                         current_state = "MENU"
+                        victory_sound_played = False  # Сбрасываем флаг звука
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         current_state = "MENU"
+                        victory_sound_played = False  # Сбрасываем флаг звука
                     elif event.key == pygame.K_SPACE:
                         game.reset_game()
                         game_over = False
                         winner = None
                         selected_square = None
                         valid_moves = []
+                        victory_sound_played = False  # Сбрасываем флаг звука
 
         screen.fill(config.BACKGROUND_COLOR)
 
@@ -138,12 +148,15 @@ def main():
             renderer.draw_game_info(game)
 
             if game_over:
+                # Воспроизводим звук победы один раз
+                if not victory_sound_played:
+                    renderer.play_victory_sound()
+                    victory_sound_played = True
+
                 renderer.draw_game_over(winner)
 
         pygame.display.flip()
         clock.tick(FPS)
-        
-        
+
+
 main()
-
-
