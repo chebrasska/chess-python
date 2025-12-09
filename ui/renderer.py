@@ -23,62 +23,18 @@ class ChessRenderer:
         self.sounds = self.load_sounds()
 
     def load_sounds(self):
-        """Загружает звуковые эффекты"""
         sounds = {}
         current_dir = os.path.dirname(os.path.abspath(__file__))
         project_dir = os.path.dirname(current_dir)
         sounds_dir = os.path.join(project_dir, 'assets', 'sounds')
 
-        # Создаем звуки по умолчанию, если файлы не найдены
-        try:
-            # Звук победы
-            victory_path = os.path.join(sounds_dir, 'victory_sound.wav')
-            if os.path.exists(victory_path):
-                sounds['victory'] = pygame.mixer.Sound(victory_path)
-            else:
-                # Создаем простой звук победы программно
-                sounds['victory'] = self.create_victory_sound()
-        except Exception as e:
-            print(f"Ошибка загрузки звуков: {e}")
-            sounds['victory'] = self.create_victory_sound()
+
+        victory_path = os.path.join(sounds_dir, 'victory_sound.wav')
+        if os.path.exists(victory_path):
+            sounds['victory'] = pygame.mixer.Sound(victory_path)
 
         return sounds
 
-    def create_victory_sound(self):
-        """Создает простой звук победы программно"""
-        import numpy as np
-        from pygame import mixer
-
-        try:
-            # Создаем звуковую волну для победы
-            sample_rate = 44100
-            duration = 1.5  # секунды
-
-            t = np.linspace(0, duration, int(sample_rate * duration), False)
-
-            # Восходящая арпеджио для победы
-            freq1 = 523.25  # C5
-            freq2 = 659.25  # E5
-            freq3 = 783.99  # G5
-            freq4 = 1046.50  # C6
-
-            # Создаем арпеджио
-            sound_wave = np.sin(2 * np.pi * freq1 * t * 0.25)
-            sound_wave += np.sin(2 * np.pi * freq2 * t * 0.25)
-            sound_wave += np.sin(2 * np.pi * freq3 * t * 0.25)
-            sound_wave += np.sin(2 * np.pi * freq4 * t * 0.25)
-
-            # Нормализуем и конвертируем в массив 16-битных целых
-            sound_wave = sound_wave / np.max(np.abs(sound_wave))
-            sound_array = (sound_wave * 32767).astype(np.int16)
-
-            # Создаем звук из массива
-            sound = pygame.sndarray.make_sound(sound_array.reshape(-1, 1))
-            sound.set_volume(0.5)
-            return sound
-        except:
-            # Возвращаем пустой звук в случае ошибки
-            return pygame.mixer.Sound(buffer=bytes())
 
     def load_piece_images(self):
         images = {}
